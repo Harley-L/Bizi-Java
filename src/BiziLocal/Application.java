@@ -1,5 +1,5 @@
 package BiziLocal;
-
+// ADD VM OPTIONS
 public class Application {
     private String name;
     private String processName;
