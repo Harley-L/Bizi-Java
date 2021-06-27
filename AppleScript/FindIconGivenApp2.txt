@@ -1,0 +1,37 @@
+set theOutputFolder to makeFolder(theAppName & " Icons", theOutputFolder)
+
+-- Extract the icons to the output folder
+set theCurrentIconFileName to theIconsToExtract
+set theCurrentIconFile to theAppResourcesFolder & theCurrentIconFileName as string
+
+
+set theCurrentIconFileNamePrefix to theCurrentIconFileName
+if theCurrentIconFileNamePrefix ends with ".icns" then set theCurrentIconFileNamePrefix to text 1 thru -6 of theCurrentIconFileNamePrefix
+set theSavePath to (theOutputFolder as string) & theCurrentIconFileNamePrefix & ".png"
+tell application "Image Events"
+	set theImage to open theCurrentIconFile
+	tell theImage
+		if theSizeChoice is not equal to "Actual Size" then scale to size theSizeChoice as string
+		save as PNG in theSavePath
+	end tell
+end tell
+
+-- Let the user know the icons have been extracted and display the output folder
+--display alert "The specified icons have been extracted."
+--tell application "Finder" to open theOutputFolder
+
+-- This handler displays an alert
+on alert(theMessage)
+	display alert "Unable to Extract Icons" message theMessage as warning
+end alert
+
+-- This handler makes a folder in an output folder
+on makeFolder(theFolderName, theOutputFolder)
+	tell application "System Events"
+		if (folder theFolderName of folder theOutputFolder exists) then
+			return path of (folder theFolderName of folder theOutputFolder)
+		else
+			return path of (make new folder at folder theOutputFolder with properties {name:theFolderName})
+		end if
+	end tell
+end makeFolder

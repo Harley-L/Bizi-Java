@@ -1,0 +1,14 @@
+tell application "System Events"
+	set frontApp to name of first application process whose frontmost is true
+end tell
+
+on GetApplicationCorrespondingToProcess(process_name)
+	tell application "System Events"
+		set process_bid to get the bundle identifier of process process_name
+		set application_name to file of (application processes where bundle identifier is process_bid)
+	end tell
+	return application_name
+end GetApplicationCorrespondingToProcess
+set Final to ""
+set Final to Final & (GetApplicationCorrespondingToProcess(frontApp) as string)
+do shell script "echo " & Final

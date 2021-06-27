@@ -1,0 +1,50 @@
+-- Get the app name
+tell application "System Events"
+	set theAppName to name of theApp
+	if theAppName ends with ".app" then set theAppName to text 1 thru -5 of theAppName
+
+	-- Determine whether the app is a package, and notify the user if it's not
+	set isPackage to (package folder of theApp)
+
+	-- Notify the user if the app is not a package
+	if isPackage = false then
+		alert("Icons cannot be extracted from " & theAppName & " because it is not a package.") of me
+		return
+	end if
+
+	-- Locate the app resources folder
+	set theAppResourcesFolder to (path of theApp) & "Contents:Resources:" as string
+
+	-- Notify the user if the app resources folder can't be found
+	if (folder theAppResourcesFolder exists) = false then
+		alert("Icons cannot be extracted from " & theAppName & " because it does not appear to contain a Resources folder.") of me
+		return
+	end if
+
+	-- Retrieve a list of icon files
+	set theIconNames to name of every file of folder theAppResourcesFolder where its name extension = "icns"
+end tell
+
+-- Notify the user if no icon files were found
+if theIconNames = {} then
+	alert("No icon files were found in the Resources folder of " & theAppName & ".") of me
+	return
+end if
+
+-- Ask the user to choose the icons to copy
+if length of theIconNames = 1 then
+	set theIconsToExtract to theIconNames
+else
+	set theIconsToExtract to first string of theIconNames --(choose from list theIconNames with prompt "Which icons would you like to extract from " & theAppName & "?" default items theIconNames with multiple selections allowed)
+end if
+if theIconsToExtract = false then return
+
+--set theSizes to {"16", "32", "128", "256", "Actual Size"}
+set theSizeChoice to {"256"}
+if theSizeChoice = false then return
+set theSizeChoice to item 1 of theSizeChoice
+
+-- find current path
+tell application "Finder"
+	set current_path to container of (path to me) as alias
+end tell

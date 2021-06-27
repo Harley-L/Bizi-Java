@@ -1,0 +1,16 @@
+on GetApplicationCorrespondingToProcess(process_name)
+	tell application "System Events"
+		set process_bid to get the bundle identifier of process process_name
+		set application_name to file of (application processes where bundle identifier is process_bid)
+	end tell
+	return application_name
+end GetApplicationCorrespondingToProcess
+
+tell application "System Events"
+	set listOfProcesses to (name of every process where background only is false)
+end tell
+set Final to ""
+repeat with theItem in listOfProcesses
+	set Final to Final & (GetApplicationCorrespondingToProcess(theItem) as string) & ","
+end repeat
+do shell script "echo " & Final
