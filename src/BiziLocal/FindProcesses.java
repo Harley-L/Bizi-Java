@@ -24,18 +24,8 @@ public class FindProcesses {
 
             // Get real application name
             for(int i = 0; i<application.length; i++) {
-                int length = application[i].length();
-
-                // Special Cases
-                if(application[i].endsWith("Contents:Home:bin:java")) {
-                    application[i] = "Minecraft";
-                    raw_applications[i] = "Macintosh HD:Applications:Minecraft.app:";
-                    continue;
-                }
-
-                application[i] = application[i].substring(0,length-1);
-                int index = application[i].lastIndexOf(":");
-                application[i] = application[i].substring(index+1,length-5);
+                application[i] = getApplicationName(application[i]);
+                raw_applications[i] = getRawApplicationName(raw_applications[i]);
             }
         }
         catch (IOException e) {
@@ -47,7 +37,7 @@ public class FindProcesses {
         return returntype;
     }
 
-    public static String currentForegroundMacApp() throws IOException {
+    public static String[] currentForegroundMacApp() throws IOException {
         String path_to_txt = System.getProperty("user.dir");
         path_to_txt = path_to_txt + "/AppleScript/ForegroundApp.txt";
         String applescript = new Scanner(new File(path_to_txt)).useDelimiter("\\Z").next();
@@ -57,12 +47,11 @@ public class FindProcesses {
         Process process = runtime.exec(args);
         BufferedReader stdInput = new BufferedReader(new InputStreamReader(process.getInputStream()));
         String application = stdInput.readLine();
-        int length = application.length();
-        application = application.substring(0,length-1);
-        int index = application.lastIndexOf(":");
-        application = application.substring(index+1,length-5);
-        return application;
 
+        String[] returntype = new String[2];
+        returntype[0] = getApplicationName(application);
+        returntype[1] = getRawApplicationName(application);
+        return returntype;
     }
 
     public static void findIconMac(String application) throws IOException {
@@ -89,6 +78,26 @@ public class FindProcesses {
                 applescript2;
         String[] args = { "osascript", "-e", applescript };
         Runtime runtime = Runtime.getRuntime();
-        Process process = runtime.exec(args);
+        runtime.exec(args);
+    }
+
+    private static String getApplicationName(String path_to_application) {
+        int length = path_to_application.length();
+
+        // Special Cases
+        if(path_to_application.endsWith("Contents:Home:bin:java")) {
+            return "Minecraft";
+        }
+
+        path_to_application = path_to_application.substring(0,length-1);
+        int index = path_to_application.lastIndexOf(":");
+        return path_to_application.substring(index+1,length-5);
+    }
+
+    private static String getRawApplicationName(String path_to_application) {
+        if(path_to_application.endsWith("Contents:Home:bin:java")) {
+            return "Macintosh HD:Applications:Minecraft.app:";
+        }
+        return path_to_application;
     }
 }
